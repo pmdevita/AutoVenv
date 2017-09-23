@@ -3,15 +3,12 @@ import sys
 from importlib.util import find_spec
 from subprocess import Popen
 
-# Make sure that we have the Virtualenv package
-assert find_spec("virtualenv") is not None
-
 
 class Venv:
     def __init__(self, name, packages, folder=None):
-        if folder is not None:    # Folder manually set
+        if folder is not None:  # Folder manually set
             self.venv_home = folder
-        elif os.name == "nt":     # Default Windows
+        elif os.name == "nt":  # Default Windows
             self.venv_home = os.path.join(os.environ["APPDATA"], "VirtualEnvs")
         elif os.name == "posix":  # Default Linux/Mac/other Posix
             self.venv_home = os.path.join(os.environ["HOME"], ".venvs")
@@ -35,7 +32,7 @@ class Venv:
 
         # Update the environment's packages
         self.update(packages)
-  
+
     def update(self, packages):
         import pip
 

@@ -4,7 +4,7 @@ setup(
     name="autovenv",
     version="0.3",
     author="pmdevita",
-    packages=["auto_venv"],
+    py_modules=["autovenv"],
     install_requires=[
         "virtualenv"
     ]
