@@ -22,13 +22,21 @@ class Venv:
 
         # Windows stores the Python binary differently
         if os.name == "nt":
-            activate_this = os.path.join(self.venv_path, "Scripts/activate_this.py")
+            self.scripts_path = os.path.join(self.venv_path, "Scripts")
             # print(activate_this)
         else:
-            activate_this = os.path.join(self.venv_path, "bin/activate_this.py")
+            self.scripts_path = os.path.join(self.venv_path, "bin")
 
         # Switch the interpreter to the virtualenv
-        exec(open(activate_this).read(), dict(__file__=activate_this))
+        try:
+            exec(open(os.path.join(self.scripts_path, "activate_this.py")).read(), dict(__file__=os.path.join(self.scripts_path, "activate_this.py")))
+        except FileNotFoundError:
+            # There is some problem with the virtualenv. Let's rebuild it
+            print("Virtualenv broken. Recreating...")
+            import shutil
+            shutil.rmtree(self.venv_path)
+            p = Popen([sys.executable, "-m", "virtualenv", self.venv_path])
+            p.wait()
 
         # Update the environment's packages
         self.update(packages)
@@ -43,16 +51,16 @@ class Venv:
         # Check if each of requested packages is already installed
         for i in packages:
             if type(i) == list:
-                if not i[0] in current_packages.keys():
+                if not i[0].lower() in current_packages.keys():
                     packages_to_install.append(i[0])
             else:
-                if i not in current_packages.keys():
+                if i.lower() not in current_packages.keys():
                     packages_to_install.append(i)
 
         # Install the missing packages
-        print(packages_to_install)
         if packages_to_install:
-            pip.main(["install"] + packages_to_install)
+            p = Popen([os.path.join(self.scripts_path, "pip"), "install"] + packages_to_install)
+            p.wait()
 
 
 if __name__ == "__main__":
