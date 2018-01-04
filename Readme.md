@@ -1,8 +1,6 @@
 # AutoVenv
 
-<a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/mAAoQtNM9wiSavibTmZvvG8g/pmdevita/AutoVenv'>
-  <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/mAAoQtNM9wiSavibTmZvvG8g/pmdevita/AutoVenv.svg' />
-</a>
+
 
 AutoVenv is a library for automatically configuring and using a virtual environment. 
 
