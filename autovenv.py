@@ -1,7 +1,6 @@
 import os
 import sys
-from importlib.util import find_spec
-from subprocess import Popen
+from subprocess import Popen, PIPE
 
 
 class Venv:
@@ -12,10 +11,12 @@ class Venv:
             self.venv_home = os.path.join(os.environ["APPDATA"], "VirtualEnvs")
         elif os.name == "posix":  # Default Linux/Mac/other Posix
             self.venv_home = os.path.join(os.environ["HOME"], ".venvs")
+        else:
+            raise Exception("Unsupported operating system")
 
         self.venv_path = os.path.join(self.venv_home, name)
 
-        # Check if the virtualenv is already initialized and if not, initialize it
+        # Check if the virtualenv is already created/initialized and if not, initialize it
         if not os.path.isdir(self.venv_path):
             p = Popen([sys.executable, "-m", "virtualenv", self.venv_path])
             p.wait()
@@ -41,11 +42,22 @@ class Venv:
         # Update the environment's packages
         self.update(packages)
 
-    def update(self, packages):
-        import pip
+    def get_installed(self):
+        # Get packages from pip
+        p = Popen([os.path.join(self.scripts_path, "pip"), "list", "--format=columns"], stdout=PIPE)
+        # Parse output lines
+        output = p.communicate()[0].decode()
+        pkg_lines = output.split('\r\n')[2:-1]
+        # Split off whitespace
+        pkgs = {}
+        for i in pkg_lines:
+            pkg = i.split()
+            pkgs[pkg[0].lower()] = pkg[1]
+        return pkgs
 
+    def update(self, packages):
         # Get a list of the current environment's packages
-        current_packages = {x.key: x.version for x in pip.get_installed_distributions()}
+        current_packages = self.get_installed()
         packages_to_install = []
 
         # Check if each of requested packages is already installed
@@ -66,4 +78,6 @@ class Venv:
 if __name__ == "__main__":
     # Testcases (Make more)
     print("Running testcases")
-    Venv("test", ["pillow"])
+    v = Venv("test1", ["requests", "pillow", "numpy"])
+    print(v.get_installed())
+
